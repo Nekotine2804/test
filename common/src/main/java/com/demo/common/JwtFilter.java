@@ -18,50 +18,65 @@ public class JwtFilter extends OncePerRequestFilter {
     private final JwtProvider jwtProvider;
 
     @Value("${USER_CLIENT_ID}")
-    private String ClientId;
+    private String clientIdConfig;
 
     @Value("${USER_SECRET_ID}")
-    private String SecretId;
+    private String secretIdConfig;
 
     public JwtFilter(JwtProvider jwtProvider) {
         this.jwtProvider = jwtProvider;
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
-
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain filterChain) throws ServletException, IOException {
         String authHeader = request.getHeader("Authorization");
         String clientId = request.getHeader("Client-Id");
         String secretId = request.getHeader("Client-Secret");
-
-        boolean invalidClient =
-                clientId == null || !clientId.equals(ClientId);
-
-        boolean invalidSecret = secretId == null || !secretId.equals(SecretId);
+        boolean invalidClient = clientId == null || !clientId.equals(clientIdConfig);
+        boolean invalidSecret = secretId == null || !secretId.equals(secretIdConfig);
         if (invalidClient || invalidSecret) {
             response.setStatus(
                     HttpServletResponse.SC_UNAUTHORIZED
             );
             return;
         }
-
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            String token = authHeader.substring(7);
-            boolean validToken = jwtProvider.validateToken(token);
-            if (validToken) {
-                String subject = jwtProvider.getClientIdFromToken(token);
-                UsernamePasswordAuthenticationToken auth =
-                        new UsernamePasswordAuthenticationToken(
-                                subject,
-                                null,
-                                new ArrayList<>()
-                        );
-                SecurityContextHolder
-                        .getContext()
-                        .setAuthentication(auth);
-            }
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            response.setStatus(
+                    HttpServletResponse.SC_UNAUTHORIZED
+            );
+            return;
         }
+        String token = authHeader.substring(7);
+        boolean validToken = jwtProvider.validateToken(token);
+        if (!validToken) {
+            response.setStatus(
+                    HttpServletResponse.SC_UNAUTHORIZED
+            );
+            return;
+        }
+
+        String subject = jwtProvider.getClientIdFromToken(token);
+        boolean invalidJwtClient = subject == null || !subject.equals(clientId);
+
+        if (invalidJwtClient) {
+            response.setStatus(
+                    HttpServletResponse.SC_UNAUTHORIZED
+            );
+            return;
+        }
+        UsernamePasswordAuthenticationToken auth =
+                new UsernamePasswordAuthenticationToken(
+                        subject,
+                        null,
+                        new ArrayList<>()
+                );
+
+        SecurityContextHolder
+                .getContext()
+                .setAuthentication(auth);
 
         filterChain.doFilter(request, response);
     }
