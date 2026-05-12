@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CopilotDiffPersistence">
+    <option name="pendingDiffs">
+      <map>
+        <entry key="/application (snapshot).yaml">
+          <value>
+            <PendingDiffInfo>
+              <option name="filePath" value="/application (snapshot).yaml" />
+              <option name="originalContent" value="spring:&#10;  application:&#10;    name: auth-service&#10;&#10;  datasource:&#10;    url: jdbc:postgresql://localhost:5432/auth_db&#10;    username: postgres&#10;    password: postgres&#10;    driver-class-name: org.postgresql.Driver" />
+              <option name="updatedContent" value="spring:&#10;  application:&#10;    name: auth-service&#10;&#10;  datasource:&#10;    url: jdbc:postgresql://localhost:5432/auth_db&#10;    username: postgres&#10;    password: postgres&#10;    driver-class-name: org.postgresql.Driver&#10;&#10;  jpa:&#10;    hibernate:&#10;      ddl-auto: update&#10;    show-sql: false&#10;&#10;springdoc:&#10;  api-docs:&#10;    path: /api-docs&#10;  swagger-ui:&#10;    path: /swagger-ui.html&#10;    enabled: true&#10;    show-extensions: true&#10;    display-operation-id: true&#10;  use-fqn: true" />
+            </PendingDiffInfo>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>
